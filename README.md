@@ -1,6 +1,8 @@
 # SC RPI Client
 
-Python library based on [wled](https://pypi.org/project/wled/) that provides a client for [sc-rpi](https://github.com/brunopk/sc-rpi). As in WLED, the way to use SC RPI Client is with an async context manager :
+Python library based on [wled](https://pypi.org/project/wled/) that provides a client for [sc-rpi](https://github.com/brunopk/sc-rpi).
+
+As in WLED, the way to use SC RPI Client is with an async context manager :
 
 ```python
 async with ScRpi("http://localhost:8080/ws") as sc_rpi:
@@ -25,7 +27,7 @@ poetry new sc-rpi-client
 - [Black FormatterPreview](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
 - [autoDocstring - Python Docstring Generator](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring)
 
-### Steps
+### Steps to start coding
 
 1. [Create a virtual environment](doc/virtual_environments.md#creating-virtual-environments)
 2. [Activate the virtual environment](doc/virtual_environments.md#activating-the-environment)
