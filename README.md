@@ -19,7 +19,7 @@ poetry new sc-rpi-client
 
 ### Required tools for development
 
-- [Poetry](doc/poetry.md)
+- Poetry
 
 ### Recommended extensions for Visual Code
 
