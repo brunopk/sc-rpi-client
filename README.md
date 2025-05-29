@@ -24,3 +24,10 @@ poetry new sc-rpi-client
 - [Ruff](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
 - [Black FormatterPreview](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
 - [autoDocstring - Python Docstring Generator](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring)
+
+### Steps
+
+1. [Create a virtual environment](doc/virtual_environments.md#creating-virtual-environments)
+2. [Activate the virtual environment](doc/virtual_environments.md#activating-the-environment)
+3. Install dependencies with Poetry
+4. Start coding!
