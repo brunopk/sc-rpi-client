@@ -1,4 +1,4 @@
-"""Custom exception classes."""
+"""Common base class for all websocket or sc-rpi errors."""
 
 class ScRpiClientError(Exception):
   """Common base class for all websocket or sc-rpi errors."""

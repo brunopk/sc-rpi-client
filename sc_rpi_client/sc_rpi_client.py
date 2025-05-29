@@ -8,21 +8,24 @@ from __future__ import annotations
 from logging import getLogger
 from typing import TYPE_CHECKING
 
-from commands import Disconnect
 from exceptions import ScRpiClientError
 from typing_extensions import Self
+
+from sc_rpi_client.base_command import BaseCommand
+from sc_rpi_client.commands.disconnect import Disconnect
 
 if TYPE_CHECKING:
     import types
 
     import aiohttp
-    from commands import Command
+
+    from sc_rpi_client.base_command import BaseCommand
 
 LOGGER = getLogger(__package__)
 
 CONNECTION_ERROR_MSG = "_client is None"
 
-class ScRpi:
+class ScRpiClient:
     """Provides methods to interact with sc-rpi."""
 
     _url: str
@@ -35,7 +38,7 @@ class ScRpi:
     def _connected(self) -> bool:
         return self._client is not None and not self._client.closed
 
-    async def send_command(self, cmd: Command) -> None:
+    async def send_command(self, cmd: BaseCommand) -> None:
         """Send command to device."""
         if self._client is not None:
             cmd_as_dict = cmd.to_dict()
