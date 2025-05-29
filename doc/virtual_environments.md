@@ -9,7 +9,7 @@ python3 -m venv .direnv
 where *.direnv* is the virtual environment directory, or :
 
 ```bash
-virtualenv -m /usr/bin/python .direnv
+virtualenv -p /usr/bin/python .direnv
 ```
 
 where */usr/bin/python points* to the Python interpreter.
