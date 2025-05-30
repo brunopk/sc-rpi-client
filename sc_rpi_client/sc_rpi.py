@@ -26,7 +26,7 @@ LOGGER = getLogger(__package__)
 
 CONNECTION_ERROR_MSG = "_client is None"
 
-class ScRpiClient:
+class ScRpi:
     """Provides methods to interact with sc-rpi."""
 
     def __init__(self, url: str) -> None:
