@@ -12,7 +12,7 @@ import aiohttp
 from typing_extensions import Self
 
 from sc_rpi_client.base_command import BaseCommand
-from sc_rpi_client.commands.disconnect import Disconnect
+from sc_rpi_client.commands.disconnect.disconnect_cmd import Disconnect
 from sc_rpi_client.exceptions.sc_rpi_client_error import ScRpiClientError
 
 if TYPE_CHECKING:
