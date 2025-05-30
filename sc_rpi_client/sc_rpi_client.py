@@ -8,16 +8,15 @@ from __future__ import annotations
 from logging import getLogger
 from typing import TYPE_CHECKING
 
-from exceptions import ScRpiClientError
+import aiohttp
 from typing_extensions import Self
 
 from sc_rpi_client.base_command import BaseCommand
 from sc_rpi_client.commands.disconnect import Disconnect
+from sc_rpi_client.exceptions.sc_rpi_client_error import ScRpiClientError
 
 if TYPE_CHECKING:
     import types
-
-    import aiohttp
 
     from sc_rpi_client.base_command import BaseCommand
 
@@ -28,16 +27,6 @@ CONNECTION_ERROR_MSG = "_client is None"
 class ScRpiClient:
     """Provides methods to interact with sc-rpi."""
 
-    _url: str
-
-    _session: (aiohttp.client.ClientSession)
-
-    _client: (aiohttp.ClientWebSocketResponse | None) = None
-
-    @property
-    def _connected(self) -> bool:
-        return self._client is not None and not self._client.closed
-
     async def send_command(self, cmd: BaseCommand) -> None:
         """Send command to device."""
         if self._client is not None:
@@ -47,17 +36,15 @@ class ScRpiClient:
         else:
             raise ScRpiClientError(CONNECTION_ERROR_MSG)
 
-    def __init__(self, url: str, session: aiohttp.ClientSession) -> None:
+    def __init__(self, url: str) -> None:
         """Initialize the client."""
         self._url =url
-        self._session = session
+        self._session : aiohttp.ClientSession | None = None
 
     async def __aenter__(self) -> Self:
         """Initialize the async context manager."""
-        if self._connected:
-            return self
-
         LOGGER.info("Connecting to %s", self._url)
+        self._session = aiohttp.ClientSession()
         self._client = await self._session.ws_connect(url=self._url)
         return self
 
