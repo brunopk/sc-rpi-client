@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 from mashumaro.mixins.json import DataClassJSONMixin
 
-from sc_rpi_client.base_command import BaseCommand
+from sc_rpi_client.commands.base_command import BaseCommand
 from sc_rpi_client.models.section import Section
 
 
