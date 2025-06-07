@@ -5,7 +5,7 @@ from mashumaro.mixins.json import DataClassJSONMixin
 
 
 @dataclass
-class BaseCommand(DataClassJSONMixin):
+class Command(DataClassJSONMixin):
     """Base class for all commands."""
 
     name: str

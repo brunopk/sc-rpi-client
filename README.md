@@ -1,6 +1,6 @@
 # SC RPI Client
 
-Python library based on [wled](https://pypi.org/project/wled/) that provides a client for [sc-rpi](https://github.com/brunopk/sc-rpi).
+Python library based on [wled](https://pypi.org/project/wled/) that provides a Python client for [sc-rpi](https://github.com/brunopk/sc-rpi).
 
 As in WLED, the way to use SC RPI Client is with an async context manager :
 
@@ -33,3 +33,7 @@ poetry new sc-rpi-client
 2. [Activate the virtual environment](doc/virtual_environments.md#activating-the-environment)
 3. Install dependencies with Poetry
 4. Start coding!
+
+## Links
+
+- [mashumaro](https://pypi.org/project/mashumaro/)

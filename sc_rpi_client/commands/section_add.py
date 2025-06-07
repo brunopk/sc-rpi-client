@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 from mashumaro.mixins.json import DataClassJSONMixin
 
-from sc_rpi_client.commands.base_command import BaseCommand
+from sc_rpi_client.commands.base_command import Command
 from sc_rpi_client.models.section import Section
 
 
@@ -14,7 +14,7 @@ class SectionAddParameters(DataClassJSONMixin):
     sections: list[Section] = field(default_factory=list)
 
 @dataclass
-class SectionAdd(BaseCommand):
+class SectionAdd(Command):
     """section_add command."""
 
     name: str = field(default="section_add", init=False)
