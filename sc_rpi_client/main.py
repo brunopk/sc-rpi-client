@@ -75,7 +75,10 @@ class ScRpi:
             await wait_for(self._disconnect_event.wait(), self._timeout)
         except asyncio.TimeoutError as ex:
             self._log.error("Timeout waiting for _disconnect_event")
-            self._log.debug("", exc_info=ex)
+            self._log.debug(
+                "Timeout waiting for _disconnect_event, with the following error",
+                exc_info=ex,
+            )
 
         if self._listen_task and not self._listen_task.done():
             self._log.debug("Cancelling listening task")
