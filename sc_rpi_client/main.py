@@ -17,6 +17,7 @@ from sc_rpi_client.commands.disconnect import Disconnect
 from sc_rpi_client.commands.section_add import SectionAdd, SectionAddParameters
 from sc_rpi_client.exceptions.sc_rpi_client_error import ScRpiClientError
 from sc_rpi_client.response import Response
+import contextlib
 
 if TYPE_CHECKING:
     import types
@@ -87,6 +88,7 @@ class ScRpi:
                 raise ScRpiClientError(CONNECTION_ERROR_MSG)
 
     async def _listen_ws(self) -> None:
+        print("ENTRANDO _listen_ws")
         async for msg in self._ws:
             print("LLEGA")
             if msg.type == aiohttp.WSMsgType.TEXT:
@@ -98,4 +100,5 @@ class ScRpi:
                     await self._on_message(Response.from_json(response))
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 break
+        print("SALIENDO _listen_ws")
 
