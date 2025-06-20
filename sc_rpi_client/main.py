@@ -76,7 +76,7 @@ class ScRpi:
         except asyncio.TimeoutError as ex:
             self._log.error("Timeout waiting for _disconnect_event")
             self._log.debug(
-                "Timeout waiting for _disconnect_event, with the following error",
+                "Timeout waiting for _disconnect_event, stack trace :",
                 exc_info=ex,
             )
 
