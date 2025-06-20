@@ -5,19 +5,18 @@ Based on Based on [WLED API Client for Python](https://pypi.org/project/wled/).
 
 from __future__ import annotations
 
-import asyncio
+from asyncio import CancelledError, Event, Lock, create_task
 from logging import Logger, getLogger
 from typing import TYPE_CHECKING
 
-import aiohttp
+from aiohttp import ClientSession, WSMsgType
 from typing_extensions import Self
 
 from sc_rpi_client.commands.base_command import Command
-from sc_rpi_client.commands.disconnect import Disconnect
+from sc_rpi_client.commands.disconnect import DISCONNECT, Disconnect
 from sc_rpi_client.commands.section_add import SectionAdd, SectionAddParameters
 from sc_rpi_client.exceptions.sc_rpi_client_error import ScRpiClientError
 from sc_rpi_client.response import Response
-import contextlib
 
 if TYPE_CHECKING:
     import types
@@ -47,17 +46,17 @@ class ScRpi:
         self._url =url
         self._on_message = on_message
         self._log = log
-        self._ws_lock = asyncio.Lock()
-        self._session : aiohttp.ClientSession | None = None
-        self._stop_event = asyncio.Event()
+        self._ws_lock = Lock()
+        self._session : ClientSession | None = None
+        self._disconnect_event = Event()
 
     async def __aenter__(self) -> Self:
         """Initialize the async context manager."""
         self._log.info("Connecting to %s", self._url)
-        self._session = aiohttp.ClientSession()
+        self._session = ClientSession()
         self._ws = await self._session.ws_connect(url=self._url)
         self._log.debug("Subscribing on_message callback")
-        self._listen_task = asyncio.create_task(self._listen_ws())
+        self._listen_task = create_task(self._listen_ws())
         return self
 
     async def __aexit__(
@@ -68,13 +67,14 @@ class ScRpi:
     ) -> bool | None:
         """Finalize the async context manager and close websocket and session."""
         await self._send_command(Disconnect())
-        # TODO: add an event after disconnecting and make listen_ws trigger that event when it successfully receives a special message to disconnect (sc-rpi should indicate the command in a new field "command")
+        await self._disconnect_event.wait()
 
         if self._listen_task and not self._listen_task.done():
+            self._log.debug("Cancelling listening task")
             self._listen_task.cancel()
             try:
                 await self._listen_task
-            except asyncio.CancelledError as ex:
+            except CancelledError as ex:
                 self._log.exception(ex)
 
         if self._ws and not self._ws.closed:
@@ -103,20 +103,23 @@ class ScRpi:
     async def _listen_ws(self) -> None:
         print("ENTRANDO _listen_ws")
         try:
-            async for msg in self._ws:
-                print("LLEGA")
-                if msg.type == aiohttp.WSMsgType.TEXT:
-                    try:
-                        if self._on_message:
-                            response = msg.json()
-                            await self._on_message(Response.from_json(response))
-                    except Exception:
-                        self._log.exception("Exception receiving message :")
-                elif msg.type == aiohttp.WSMsgType.ERROR:
-                    break
+            if self._on_message:
+                async for msg in self._ws:
+                    print("LLEGA")
+                    if msg.type == WSMsgType.TEXT:
+                        try:
+                            response = Response.from_json(msg.json())
+                            if response.command != DISCONNECT:
+                                await self._on_message(response)
+                            else:
+                                self._disconnect_event.set()
+                        except Exception:
+                            self._log.exception("Exception receiving message :")
+                    elif msg.type == WSMsgType.ERROR:
+                        break
         except Exception:
             LOGGER.exception("Exception listening websocket")
-        except asyncio.CancelledError:
+        except CancelledError:
             LOGGER.debug("WebSocket listener cancelled")
             # re-raise so shutdown handles it
             raise
