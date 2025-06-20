@@ -88,6 +88,7 @@ class ScRpi:
 
     async def _listen_ws(self) -> None:
         async for msg in self._ws:
+            print("LLEGA")
             if msg.type == aiohttp.WSMsgType.TEXT:
                 try:
                     response = msg.json()
