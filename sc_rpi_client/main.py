@@ -89,16 +89,19 @@ class ScRpi:
 
     async def _listen_ws(self) -> None:
         print("ENTRANDO _listen_ws")
-        async for msg in self._ws:
-            print("LLEGA")
-            if msg.type == aiohttp.WSMsgType.TEXT:
-                try:
-                    response = msg.json()
-                except Exception as ex:
-                    raise ScRpiClientError from ex
-                if self._on_message:
-                    await self._on_message(Response.from_json(response))
-            elif msg.type == aiohttp.WSMsgType.ERROR:
-                break
+        try:
+            async for msg in self._ws:
+                print("LLEGA")
+                if msg.type == aiohttp.WSMsgType.TEXT:
+                    try:
+                        response = msg.json()
+                    except Exception as ex:
+                        raise ScRpiClientError from ex
+                    if self._on_message:
+                        await self._on_message(Response.from_json(response))
+                elif msg.type == aiohttp.WSMsgType.ERROR:
+                    break
+        except Exception as ex:
+            LOGGER.exception("Exception listening websocket")
         print("SALIENDO _listen_ws")
 
