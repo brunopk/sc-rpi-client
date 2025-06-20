@@ -68,6 +68,7 @@ class ScRpi:
     ) -> bool | None:
         """Finalize the async context manager and close websocket and session."""
         await self._send_command(Disconnect())
+        # TODO: add an event after disconnecting and make listen_ws trigger that event when it successfully receives a special message to disconnect (sc-rpi should indicate the command in a new field "command")
 
         if self._listen_task and not self._listen_task.done():
             self._listen_task.cancel()
