@@ -106,11 +106,11 @@ class ScRpi:
                 print("LLEGA")
                 if msg.type == aiohttp.WSMsgType.TEXT:
                     try:
-                        response = msg.json()
+                        if self._on_message:
+                            response = msg.json()
+                            await self._on_message(Response.from_json(response))
                     except Exception as ex:
                         raise ScRpiClientError from ex
-                    if self._on_message:
-                        await self._on_message(Response.from_json(response))
                 elif msg.type == aiohttp.WSMsgType.ERROR:
                     break
         except Exception:
