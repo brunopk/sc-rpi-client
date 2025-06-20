@@ -49,6 +49,7 @@ class ScRpi:
         self._log = log
         self._ws_lock = asyncio.Lock()
         self._session : aiohttp.ClientSession | None = None
+        self._stop_event = asyncio.Event()
 
     async def __aenter__(self) -> Self:
         """Initialize the async context manager."""
@@ -65,11 +66,22 @@ class ScRpi:
         exc_val: BaseException | None,
         exc_tb: types.TracebackType | None,
     ) -> bool | None:
-        """Finalize the async context manager."""
+        """Finalize the async context manager and close websocket and session."""
+        await self._send_command(Disconnect())
+
+        if self._listen_task and not self._listen_task.done():
+            self._listen_task.cancel()
+            try:
+                await self._listen_task
+            except asyncio.CancelledError as ex:
+                self._log.exception(ex)
+
+        if self._ws and not self._ws.closed:
+            await self._ws.close()
+
         if self._session and not self._session.closed:
-            await self._send_command(Disconnect())
-            self._log.info("Closing ClientSession")
             await self._session.close()
+
         return True
 
     async def section_add(self, sections: list[Section]) -> None:
