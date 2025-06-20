@@ -109,8 +109,8 @@ class ScRpi:
                         if self._on_message:
                             response = msg.json()
                             await self._on_message(Response.from_json(response))
-                    except Exception as ex:
-                        raise ScRpiClientError from ex
+                    except Exception:
+                        self._log.exception("Exception receiving message :")
                 elif msg.type == aiohttp.WSMsgType.ERROR:
                     break
         except Exception:
