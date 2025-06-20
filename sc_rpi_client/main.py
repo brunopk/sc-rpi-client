@@ -115,6 +115,10 @@ class ScRpi:
                     break
         except Exception:
             LOGGER.exception("Exception listening websocket")
+        except asyncio.CancelledError:
+            LOGGER.debug("WebSocket listener cancelled")
+            # re-raise so shutdown handles it
+            raise
         finally:
             print(f"listen_ws exited, closed={self._ws.closed}, code={self._ws.close_code}")
         print("SALIENDO _listen_ws")
