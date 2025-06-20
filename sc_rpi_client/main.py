@@ -69,9 +69,11 @@ class ScRpi:
         exc_tb: types.TracebackType | None,
     ) -> bool | None:
         """Finalize the async context manager and close websocket and session."""
+        # TODO: maybe its necessary to add a sleep after disconnecting in SC RPI
         await self._send_command(Disconnect())
 
         try:
+            # TODO: try checking self._ws and not self._ws.closed (or checking not self._disconnect_event.done()  or self._disconnect_event.cancelled())before waiting_for
             await wait_for(self._disconnect_event.wait(), self._timeout)
         except asyncio.TimeoutError as ex:
             self._log.error(
@@ -130,6 +132,7 @@ class ScRpi:
                                 await self._on_message(response)
                             else:
                                 self._disconnect_event.set()
+                                break
                         except Exception:
                             self._log.exception("Exception receiving message :")
                     elif msg.type == WSMsgType.ERROR:
