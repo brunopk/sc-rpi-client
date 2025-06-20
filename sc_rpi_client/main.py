@@ -5,7 +5,8 @@ Based on Based on [WLED API Client for Python](https://pypi.org/project/wled/).
 
 from __future__ import annotations
 
-from asyncio import CancelledError, Event, Lock, create_task
+import asyncio
+from asyncio import CancelledError, Event, Lock, create_task, wait_for
 from logging import Logger, getLogger
 from typing import TYPE_CHECKING
 
@@ -40,11 +41,13 @@ class ScRpi:
         self,
         url: str,
         on_message: Callable[[Response], Awaitable[None]] | None = None,
+        timeout: int | None = 5,
         log: Logger = LOGGER,
     ) -> None:
         """Initialize the client."""
         self._url =url
         self._on_message = on_message
+        self._timeout = timeout
         self._log = log
         self._ws_lock = Lock()
         self._session : ClientSession | None = None
@@ -67,7 +70,12 @@ class ScRpi:
     ) -> bool | None:
         """Finalize the async context manager and close websocket and session."""
         await self._send_command(Disconnect())
-        await self._disconnect_event.wait()
+
+        try:
+            await wait_for(self._disconnect_event.wait(), self._timeout)
+        except asyncio.TimeoutError as ex:
+            self._log.error("Timeout waiting for _disconnect_event")
+            self._log.debug("", exc_info=ex)
 
         if self._listen_task and not self._listen_task.done():
             self._log.debug("Cancelling listening task")
