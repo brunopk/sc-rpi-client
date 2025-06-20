@@ -137,4 +137,5 @@ class ScRpi:
         finally:
             print(f"listen_ws exited, closed={self._ws.closed}, code={self._ws.close_code}")
         print("SALIENDO _listen_ws")
+        self._log.debug("Exiting from _listen_ws")
 
