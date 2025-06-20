@@ -101,7 +101,7 @@ class ScRpi:
                         await self._on_message(Response.from_json(response))
                 elif msg.type == aiohttp.WSMsgType.ERROR:
                     break
-        except Exception as ex:
+        except Exception:
             LOGGER.exception("Exception listening websocket")
         print("SALIENDO _listen_ws")
 
