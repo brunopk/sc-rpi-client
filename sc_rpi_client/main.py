@@ -94,13 +94,13 @@ class ScRpi:
                     exc_info=ex,
                 )
 
+        self._log.info("Finalizing connection")
+
         if self._ws and not self._ws.closed:
             await self._ws.close()
 
         if self._session and not self._session.closed:
             await self._session.close()
-
-        self._log.info("Finalizing connection")
 
         return True
 
@@ -148,7 +148,7 @@ class ScRpi:
             raise
         finally:
             self._log.debug(
-                "_listen_ws: finalized self._ws.closed=%s, self._ws.close_code=%d",
+                "_listen_ws: finalized with self._ws.closed=%s, self._ws.close_code=%d",
                 self._ws.closed,
                 self._ws.close_code,
             )
