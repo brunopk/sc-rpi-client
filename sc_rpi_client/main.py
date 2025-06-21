@@ -124,7 +124,6 @@ class ScRpi:
         try:
             if self._on_message:
                 async for msg in self._ws:
-                    print("LLEGA")
                     if msg.type == WSMsgType.TEXT:
                         try:
                             response = Response.from_json(msg.json())
@@ -134,18 +133,21 @@ class ScRpi:
                                 self._disconnect_event.set()
                                 break
                         except Exception:
-                            self._log.exception("Exception receiving message :")
+                            self._log.exception(
+                                "_listen_ws: exception receiving message :",
+                            )
                     elif msg.type == WSMsgType.ERROR:
-                        self._log.error("WSMsgType.ERROR")
+                        self._log.error("_listen_ws: WSMsgType.ERROR")
                         break
         except Exception:
-            LOGGER.exception("Exception listening websocket")
+            LOGGER.exception("_listen_ws: exception listening websocket")
         except CancelledError:
-            LOGGER.debug("WebSocket listener cancelled")
+            LOGGER.debug("_listen_ws: websocket listener cancelled")
             # re-raise so shutdown handles it
             raise
         finally:
-            print(f"listen_ws exited, closed={self._ws.closed}, code={self._ws.close_code}")
-        print("SALIENDO _listen_ws")
-        self._log.info("Finalizing _listen_ws")
-
+            self._log.info(
+                "_listen_ws: finalized self._ws.closed=%s, self._ws.close_code=%d",
+                self._ws.closed,
+                self._ws.close_code,
+            )
