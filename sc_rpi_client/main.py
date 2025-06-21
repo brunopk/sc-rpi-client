@@ -133,8 +133,8 @@ class ScRpi:
                                 self._disconnect_event.set()
                                 break
                         except Exception as ex:
-                            self._log.debug(
-                                "_listen_ws: exception receiving message :",
+                            self._log.warning(
+                                "Exception receiving message :",
                                 exc_info=ex,
                             )
                     elif msg.type == WSMsgType.ERROR:
