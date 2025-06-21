@@ -55,10 +55,10 @@ class ScRpi:
 
     async def __aenter__(self) -> Self:
         """Initialize the async context manager."""
-        self._log.info("Connecting to %s", self._url)
+        self._log.info("__aenter__: connecting to %s", self._url)
         self._session = ClientSession()
         self._ws = await self._session.ws_connect(url=self._url)
-        self._log.debug("Subscribing on_message callback")
+        self._log.debug("__aenter__: subscribing on_message callback")
         self._listen_task = create_task(self._listen_ws())
         return self
 
@@ -77,10 +77,11 @@ class ScRpi:
             await wait_for(self._disconnect_event.wait(), self._timeout)
         except asyncio.TimeoutError as ex:
             self._log.error(
-                "Timeout waiting for _disconnect_event (try with DEBUG log level)",
+                "__aexit__: Timeout waiting for _disconnect_event "
+                "(try with DEBUG log level)",
             )
             self._log.debug(
-                "Timeout waiting for _disconnect_event, stack trace :",
+                "__aexit__: Timeout waiting for _disconnect_event, stack trace :",
                 exc_info=ex,
             )
 
@@ -89,7 +90,7 @@ class ScRpi:
             and (not self._listen_task.done()
             or self._listen_task.cancelled())
         ):
-            self._log.debug("Cancelling listening task")
+            self._log.debug("__aexit__: cancelling listening task")
             self._listen_task.cancel()
             try:
                 await self._listen_task
