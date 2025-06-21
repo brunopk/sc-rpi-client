@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from mashumaro.mixins.json import DataClassJSONMixin
 
@@ -16,6 +17,4 @@ class Response(DataClassJSONMixin):
 
     command: str | None
 
-    description: str
-
-    data: dict
+    payload: dict[str, Any]
