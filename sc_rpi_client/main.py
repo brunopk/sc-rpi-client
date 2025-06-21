@@ -69,33 +69,31 @@ class ScRpi:
         exc_tb: types.TracebackType | None,
     ) -> bool | None:
         """Finalize the async context manager and close websocket and session."""
-        # TODO: maybe its necessary to add a sleep after disconnecting in SC RPI
         await self._send_command(Disconnect())
 
+        if self._listen_task.done():
+            self._log.debug("__aexit__: _listen_task done")
+
         try:
-            # TODO: try checking self._ws and not self._ws.closed (or checking not self._disconnect_event.done()  or self._disconnect_event.cancelled())before waiting_for
-            await wait_for(self._disconnect_event.wait(), self._timeout)
+            if not self._ws.closed and not self._listen_task.done():
+                self._log.debug("__aexit__: waiting for self._disconnect_event")
+                await wait_for(self._disconnect_event.wait(), self._timeout)
         except asyncio.TimeoutError as ex:
-            self._log.error(
-                "__aexit__: Timeout waiting for _disconnect_event "
-                "(try with DEBUG log level)",
-            )
             self._log.debug(
-                "__aexit__: Timeout waiting for _disconnect_event, stack trace :",
+                "__aexit__: timeout waiting for _disconnect_event :",
                 exc_info=ex,
             )
 
-        if (
-            self._listen_task
-            and (not self._listen_task.done()
-            or self._listen_task.cancelled())
-        ):
-            self._log.debug("__aexit__: cancelling listening task")
-            self._listen_task.cancel()
+        if not self._listen_task.done():
             try:
+                self._log.debug("__aexit__: cancelling _listen_task")
+                self._listen_task.cancel()
                 await self._listen_task
             except CancelledError as ex:
-                self._log.exception(ex)
+                self._log.debug(
+                    "__aexit__: error cancelling _listen_task :",
+                    exc_info=ex,
+                )
 
         if self._ws and not self._ws.closed:
             await self._ws.close()
@@ -132,15 +130,15 @@ class ScRpi:
                             else:
                                 self._disconnect_event.set()
                                 break
-                        except Exception:
-                            self._log.exception(
-                                "_listen_ws: exception receiving message :",
+                        except Exception as ex:
+                            self._log.debug(
+                                "_listen_ws: exception receiving message :", exc_info=ex
                             )
                     elif msg.type == WSMsgType.ERROR:
                         self._log.error("_listen_ws: WSMsgType.ERROR")
                         break
-        except Exception:
-            LOGGER.exception("_listen_ws: exception listening websocket")
+        except Exception as ex:
+            LOGGER.debug("_listen_ws: exception listening websocket", exc_info=ex)
         except CancelledError:
             LOGGER.debug("_listen_ws: websocket listener cancelled")
             # re-raise so shutdown handles it
