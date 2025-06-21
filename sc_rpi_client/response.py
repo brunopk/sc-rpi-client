@@ -7,14 +7,13 @@ from typing import Any
 
 from mashumaro.mixins.json import DataClassJSONMixin
 
-# TODO: adapt commands to the new format
 
 @dataclass
 class Response(DataClassJSONMixin):
-    """Base class for all responses (all responses have the same format)."""
+    """Base class for all responses (the same format for all commands)."""
 
     status: int
 
     command: str | None
 
-    payload: dict[str, Any]
+    payload: dict[str, Any] | None
