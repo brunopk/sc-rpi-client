@@ -148,7 +148,7 @@ class ScRpi:
             raise
         finally:
             self._log.debug(
-                "_listen_ws: finalized with self._ws.closed=%s, self._ws.close_code=%d",
+                "_listen_ws: finalized with self._ws.closed=%s, self._ws.close_code=%s",
                 self._ws.closed,
-                self._ws.close_code,
+                str(self._ws.close_code) if self._ws.close_code is not None else "None",
             )
