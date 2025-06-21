@@ -120,7 +120,6 @@ class ScRpi:
                 raise ScRpiClientError(CONNECTION_ERROR_MSG)
 
     async def _listen_ws(self) -> None:
-        print("ENTRANDO _listen_ws")
         try:
             if self._on_message:
                 async for msg in self._ws:
