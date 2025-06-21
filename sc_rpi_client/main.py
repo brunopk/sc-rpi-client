@@ -55,10 +55,9 @@ class ScRpi:
 
     async def __aenter__(self) -> Self:
         """Initialize the async context manager."""
-        self._log.info("__aenter__: connecting to %s", self._url)
+        self._log.info("Connecting to %s", self._url)
         self._session = ClientSession()
         self._ws = await self._session.ws_connect(url=self._url)
-        self._log.debug("__aenter__: subscribing on_message callback")
         self._listen_task = create_task(self._listen_ws())
         return self
 
@@ -101,6 +100,8 @@ class ScRpi:
         if self._session and not self._session.closed:
             await self._session.close()
 
+        self._log.info("Finalizing connection")
+
         return True
 
     async def section_add(self, sections: list[Section]) -> None:
@@ -121,6 +122,7 @@ class ScRpi:
     async def _listen_ws(self) -> None:
         try:
             if self._on_message:
+                self._log.debug("_listen_ws: ready to receive messages")
                 async for msg in self._ws:
                     if msg.type == WSMsgType.TEXT:
                         try:
@@ -132,19 +134,20 @@ class ScRpi:
                                 break
                         except Exception as ex:
                             self._log.debug(
-                                "_listen_ws: exception receiving message :", exc_info=ex
+                                "_listen_ws: exception receiving message :",
+                                exc_info=ex,
                             )
                     elif msg.type == WSMsgType.ERROR:
                         self._log.error("_listen_ws: WSMsgType.ERROR")
                         break
         except Exception as ex:
-            LOGGER.debug("_listen_ws: exception listening websocket", exc_info=ex)
+            LOGGER.debug("_listen_ws: exception : ", exc_info=ex)
         except CancelledError:
-            LOGGER.debug("_listen_ws: websocket listener cancelled")
+            LOGGER.debug("_listen_ws: task cancelled")
             # re-raise so shutdown handles it
             raise
         finally:
-            self._log.info(
+            self._log.debug(
                 "_listen_ws: finalized self._ws.closed=%s, self._ws.close_code=%d",
                 self._ws.closed,
                 self._ws.close_code,
