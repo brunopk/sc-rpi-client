@@ -114,7 +114,7 @@ class ScRpi:
         async with self._ws_lock:
             if self._ws is not None:
                 cmd_as_dict = cmd.to_dict()
-                self._log.debug("Sending command %s", cmd_as_dict)
+                self._log.debug("Sending command : %s", cmd_as_dict)
                 await self._ws.send_json(cmd_as_dict)
             else:
                 raise ScRpiClientError(CONNECTION_ERROR_MSG)
@@ -136,6 +136,7 @@ class ScRpi:
                         except Exception:
                             self._log.exception("Exception receiving message :")
                     elif msg.type == WSMsgType.ERROR:
+                        self._log.error("WSMsgType.ERROR")
                         break
         except Exception:
             LOGGER.exception("Exception listening websocket")
